@@ -10,14 +10,12 @@ ATower::ATower()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
 }
 
 // Called when the game starts or when spawned
 void ATower::BeginPlay()
 {
-	Super::BeginPlay();
-	
+	Super::BeginPlay();	
 }
 
 // Called every frame
@@ -33,7 +31,7 @@ void ATower::Tick( float DeltaTime )
 		if (CanFireAt(actor))
 		{
 			FireAt(actor);
-			Reload();
+			StartCoolDown();
 		}
 	}
 }
@@ -45,7 +43,8 @@ bool ATower::CanFireAt(AActor* Actor)
 
 bool ATower::IsInRange(AActor* Actor)
 {
-	return (Actor->GetActorLocation() - this->GetActorLocation()).Size < AttackRange;
+	FVector difference = Actor->GetActorLocation() - this->GetActorLocation();
+	return difference.Size() < AttackRange;
 }
 
 void ATower::FireAt(AActor * Actor)
@@ -53,13 +52,13 @@ void ATower::FireAt(AActor * Actor)
 	Actor->TakeDamage(Damage, DamageEvent, this->GetInstigatorController(), this);
 }
 
-void ATower::Reload()
+void ATower::StartCoolDown()
 {
 	UWorld* const World = GetWorld();
 
 	if (World != NULL)
 	{
-		LastFireTime = World->GetTimeSeconds;
+		LastFireTime = World->GetTimeSeconds();
 	}
 }
 
@@ -70,6 +69,7 @@ bool ATower::IsOnCooldown()
 	{
 		return false;
 	}
-	return World->TimeSeconds - LastFireTime < Cooldown;
+	float durationSinceUsed = World->TimeSeconds - LastFireTime;
+	return durationSinceUsed < Cooldown;
 }
 

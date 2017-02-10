@@ -31,7 +31,7 @@ public:
 protected:
 	void FireAt(AActor* Actor);
 
-	void Reload();
+	void StartCoolDown();
 
 	bool IsOnCooldown();
 
